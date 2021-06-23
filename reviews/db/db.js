@@ -1,10 +1,11 @@
 const mysql = require('mysql2');
+const bluebird = require('bluebird');
 
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'chillara',
-  database: 'SDC'
+  database: 'SDC',
 });
 
 

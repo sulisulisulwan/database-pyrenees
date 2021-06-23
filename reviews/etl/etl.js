@@ -9,12 +9,6 @@ const results = [];
 fs.createReadStream(reviews)
   .pipe(csv({}))
   .on('data', (data) => {
-    //parse data that needs to be parsed
-    let parsedProductId = Number(data.id);
-    let parsedRating = Number(data.rating);
-    let parsedRecommend = Boolean(data.recommend);
-    let parsedReported = Boolean(data.reported);
-    let parsedHelpfulness = Number(data.helpfulness);
     //format date
     let temp = Date(data.date);
     let date = new Date(temp);
@@ -27,23 +21,22 @@ fs.createReadStream(reviews)
     //put it in array
     let transformedData =
     [
-      parsedProductId,
-      parsedRating,
+      Number(data.id),
+      Number(data.rating),
       parsedDateString,
       data.summary,
       data.body,
-      parsedRecommend,
-      parsedReported,
+      Boolean(data.recommend),
+      Boolean(data.reported),
       data.reviewer_name,
       data.reviewer_email,
       parsedResponse,
-      parsedHelpfulness
+      Number(data.helpfulness)
     ];
     //load it into the database!!
     db.insertIntoReviews(transformedData);
     // console.log(transformedData);
-
   })
   .on('end', () => {
-    console.log(results);
+    console.log('INSERTED ALL REVIEWS INTO DATABASE!!!!!!!!!!!!');
   });
