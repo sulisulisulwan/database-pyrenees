@@ -8,10 +8,6 @@ const STYLES_ETL = require('./styles.js');
 
 
 
-
-
-
-
 const formatForDatabase = (csvFile) => {
   let splitCSVFile = csvFile.split('\n')
   let keys = []
@@ -24,7 +20,7 @@ const formatForDatabase = (csvFile) => {
       let id = field[0]
       table[id] = {};
       keys.forEach((key, i) => {
-        let value = (key === 'id' || key === 'style_id' || key === 'quantity') ? Number(field[i])
+        let value = (key === 'id' || key === 'style_id' || key === 'quantity' || 'productId') ? Number(field[i])
           : key === 'default?' ? ((field[i] === 'true') ? true : false)
           : field[i].replace('"', '').replace('"', '');
           table[id][key] = value;

@@ -3,7 +3,6 @@ const path = require('path');
 const formatForDatabase = require('./etl.js');
 
 // const STYLES_ETL = new Promise ((resolve, reject) => {
-  let products = {};
   return fsPromise.readFile(__dirname.substring(0, __dirname.length - 3) + 'raw_data/styles.csv', 'utf8')
   .then(result => {
     let formatted = formatForDatabase(result);
@@ -15,4 +14,4 @@ const formatForDatabase = require('./etl.js');
 // }
 
 
-module.exports = STYLES_ETL;
+// module.exports = STYLES_ETL; ,
