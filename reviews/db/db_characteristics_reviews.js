@@ -9,12 +9,9 @@ const connection = mysql.createConnection({
 });
 
 
-module.exports.insertIntoReviews = (array) => {
+module.exports.insertIntoCharacteristicsReviews = (array) => {
   return connection.execute(
-    'INSERT INTO REVIEWS'
-    + '(id, product_id, rating, date, summary, body, recommend,'
-    + 'reported, reviewer_name, reviewer_email, response, helpfullness) '
-    + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array,
+    'INSERT INTO characteristics_reviews (id, characteristic_id, review_id, value) VALUES (?, ?, ?, ?)', array,
     (err, results) => {
       if (err) {
         console.log(err);

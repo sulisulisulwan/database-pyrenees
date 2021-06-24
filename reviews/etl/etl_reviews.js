@@ -1,6 +1,6 @@
 const fs = require('fs');
 const csv = require('csv-parser');
-const db = require('../db/db.js');
+const db = require('../db/db_reviews.js');
 
 var reviews = __dirname + '/../../../DATA/reviews.csv';
 
@@ -24,6 +24,7 @@ const etlReview = () => {
     let transformedData =
     [
       Number(data.id),
+      Number(data.product_id),
       Number(data.rating),
       parsedDateString,
       data.summary,
@@ -53,4 +54,4 @@ const etlReview = () => {
   });
 }
 
-const is = etlReview();
+etlReview();
