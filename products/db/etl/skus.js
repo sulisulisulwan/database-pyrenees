@@ -3,94 +3,88 @@ const path = require('path');
 const etl = require('./etl.js');
 const rl = require('readline')
 const db = require('../db.js')
-// const SKUS_ETL = new Promise ((resolve, reject) => {
 
-  let skus = {};
-  let keys = [];
-  let field;
-  let readStream = fs.createReadStream(__dirname.substring(0, __dirname.length - 3) + 'raw_data/skus.csv', 'utf8')
-  let readLine = rl.createInterface({
-      input: readStream
-  });
+// const PRODUCT_ETL = () => {
+//   return new Promise ((resolve, reject) => {
+    let skus = [];
+    let rowCount = 0;
+    let keys = [];
+    let field;
+    let isFirstLine = true;
+    let rebootStream = {};
+    let buffer = 0
+    let rowsInserted;
+    let lineCount = 0
+    let readStream = fs.createReadStream(__dirname.substring(0, __dirname.length - 3) + 'raw_data/skus.csv', 'utf8')
+    let readLine = rl.createInterface({
+        input: readStream
+    });
+    let currentProductID = null;
 
-  let isFirstLine = true;
-
-  readLine.on('line', (line) => {
-    readLine.pause()
-    if (isFirstLine) {
-      let keyCollection = etl.formatForDatabase(line, undefined, isFirstLine)
-      keyCollection.forEach(key => keys.push(key));
-      isFirstLine = false;
-      readLine.resume()
-    } else {
-      field = etl.formatForDatabase(line, keys, isFirstLine)
-      let q = `INSERT INTO SKUs (ID, Quantity, Size, Style_ID) VALUES (?, ?, ?, ?)`;
-      let id = Object.keys(field)[0]
-      let v = [id, field[id].quantity, field[id].size, field[id].styleId]
-
-      let insertField = () => {
-        return new Promise((resolve, reject) => {
-          db.query(q, v, (error, result) => {
-            if (error) {
-              reject(new Error(error))
+    readLine.on('line', (line) => {
+      readLine.pause();
+      lineCount++
+      if (lineCount > 4508252) {
+        console.log(lineCount)
+        console.log(line)
+      }
+        if (isFirstLine) {
+          let keyCollection = etl.formatForDatabase(line, undefined, isFirstLine)
+          keyCollection.forEach(key => keys.push(key));
+          isFirstLine = false;
+          readLine.resume()
+        } else {
+          field = etl.formatForDatabase(line, keys, isFirstLine)
+          let id = Number(Object.keys(field)[0]);
+          let quantity = field[id].quantity
+          let size = field[id].size
+          let style_id = field[id].style_id
+          let q = `INSERT INTO Products (ID, Quantity, SloganSize, Style_ID) VALUES (?, ?, ?, ?)`;
+          let v = [id, quantity, size, style_id]
+          let insertField = () => {
+            return new Promise((resolve, reject) => {
+              db.query(q, v, (error, result) => {
+                if (error) {
+                  reject(new Error(error))
+                } else {
+                  rowsInserted = result.insertId
+                  resolve(result);
+                }
+              })
+            })
+          }
+          insertField()
+          .then((result) => {
+            if (buffer > 200) {
+              buffer = 0;
+              readLine.resume();
             } else {
-              console.log(results)
-              resolve(results);
+              console.log(buffer)
+              buffer++;
             }
           })
-        })
-      }
-      insertField()
-        .then((result) => {
-          console.log(result);
-          readLine.resume();
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-    }
-  })
+          .catch((error) => {
+            errors.push(JSON.stringify(error))
+          })
+        }
+    })
 
+    readLine.on('pause', ()=> {
+      rebootStream = setInterval(()=>{
+        readLine.resume()
+      }, 5000)
+    })
 
-
-  // readStream.on('data', (chunk) => {
-
-
-  //     // readStream.pause()
-
-  //     let readThis = chunk.split('\n')
-  //     let result;
-  //     if (chunkCount === 0) {
-  //       result = etl.formatForDatabase(chunk)
-  //       keys = Object.keys(result['1'])
-  //     } else {
-  //       result = etl.formatForDatabase(chunk, keys)
-  //     }
-  //     console.log(result)
-  //     for (let id in result) {
-  //       keys.forEach(key => {
-  //         if (photos[id] === undefined) {
-  //           photos[id] = {}
-  //         }
-  //         photos[id][key] = result[id][key]});
-  //     }
-  //     chunkCount++
-
-  //     //POSSIBLY PUT THESE INTO DATABASE
-
-
-  //     // readStream.resume();
-
-  // })
-
-  // readStream.on('end', () => {
-  //   // console.log(photos)
-  //   // console.log('STREAM COMPLETED')
-  //   // let photos = formatForDatabase(data);
-  //   // console.log('FORMATTED')
-  //   // console.log(Object.keys(photos).length)
-  // })
-
+      readLine.on('close', () => {
+        clearInterval(rebootStream);
+        if (rowsInserted === ?) {
+          resolve('skus.csv uploaded to SQL database')
+        } else {
+          reject('skus.csv failed to properly load to SQL database')
+        }
+      });
+    // }
+//   }
 // }
 
 // module.exports = SKUS_ETL;

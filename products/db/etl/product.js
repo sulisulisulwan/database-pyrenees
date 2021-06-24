@@ -3,7 +3,8 @@ const path = require('path');
 const etl = require('./etl.js');
 const rl = require('readline')
 const db = require('../db.js')
-// const SKUS_ETL = () => {
+
+const PRODUCT_ETL = () => {
   return new Promise ((resolve, reject) => {
     let product = {};
     let keys = [];
@@ -72,7 +73,6 @@ const db = require('../db.js')
         reject('product.csv failed to properly load to SQL database')
       }
     });
-
   }
 }
 

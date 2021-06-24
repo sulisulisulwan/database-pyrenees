@@ -5,49 +5,85 @@ const etl = require('./etl.js');
 
 
 // // const PHOTOS_ETL = new Promise ((resolve, reject) => {
+  let rowCount = 0;
+  let keys = [];
+  let field;
+  let isFirstLine = true;
+  let rebootStream = {};
+  let buffer = 0
+  let rowsInserted;
+  let lineCount = 0
+  let readStream = fs.createReadStream(__dirname.substring(0, __dirname.length - 3) + 'raw_data/photos.csv', 'utf8')
+  let readLine = rl.createInterface({
+      input: readStream
+  });
+  let currentProductID = null;
 
-let photos = {};
-let chunkCount = 0;
-let photosArray = [];
-let keys;
-let readStream = fs.createReadStream(__dirname.substring(0, __dirname.length - 3) + 'raw_data/photos.csv', 'utf8')
-readStream.on('data', (chunk) => {
-  // setTimeout(() => {
-    readStream.pause()
-    let readThis = chunk.split('\n')
-    let result;
-    if (chunkCount === 0) {
-      result = etl.formatForDatabase(chunk)
-      keys = Object.keys(result['1'])
-    } else {
-      result = etl.formatForDatabase(chunk, keys)
+  readLine.on('line', (line) => {
+    readLine.pause();
+    lineCount++
+    if (lineCount > ?) {
+      console.log(lineCount)
+      console.log(line)
     }
-    for (let id in result) {
-      keys.forEach(key => {
-        if (photos[id] === undefined) {
-          photos[id] = {}
+      if (isFirstLine) {
+        let keyCollection = etl.formatForDatabase(line, undefined, isFirstLine)
+        keyCollection.forEach(key => keys.push(key));
+        isFirstLine = false;
+        readLine.resume()
+      } else {
+        field = etl.formatForDatabase(line, keys, isFirstLine)
+        let id = Object.keys(field)[0];
+        let thumbnail_url = field[id].thumbnail_url
+        let url = field[id].url
+        let style_id = field[id].style_id
+        let q = `INSERT INTO Photos (ID, Thumbnail_URL, URL, Style_ID) VALUES (?, ?, ?, ?)`;
+        let v = [id, thumbnail_url, url, style_id]
+        let insertField = () => {
+          return new Promise((resolve, reject) => {
+            db.query(q, v, (error, result) => {
+              if (error) {
+                reject(new Error(error))
+              } else {
+                rowsInserted = result.insertId
+                resolve(result);
+              }
+            })
+          })
         }
-        photos[id][key] = result[id][key]});
-    }
-    chunkCount++
+        insertField()
+        .then((result) => {
+          if (buffer > 200) {
+            buffer = 0;
+            readLine.resume();
+          } else {
+            console.log(buffer)
+            buffer++;
+          }
+        })
+        .catch((error) => {
+          errors.push(JSON.stringify(error))
+        })
+      }
+  })
 
-    //POSSIBLY PUT THESE INTO DATABASE
+  readLine.on('pause', ()=> {
+    rebootStream = setInterval(()=>{
+      readLine.resume()
+    }, 5000)
+  })
 
-    console.log(result)
-
-    // readStream.resume();
-  // }, 4000)
-
-})
-
-readStream.on('end', () => {
-  console.log(photos)
-  // console.log('STREAM COMPLETED')
-  // let photos = formatForDatabase(data);
-  // console.log('FORMATTED')
-  // console.log(Object.keys(photos).length)
-})
-
+    readLine.on('close', () => {
+      clearInterval(rebootStream);
+      if (rowsInserted === ?) {
+        resolve('photos.csv uploaded to SQL database')
+      } else {
+        reject('photos.csv failed to properly load to SQL database')
+      }
+    });
+  // }
+//   }
+// }
 
 
 // module.exports = PHOTOS_ETL;
