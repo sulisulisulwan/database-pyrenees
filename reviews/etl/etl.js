@@ -1,42 +1,34 @@
-const fs = require('fs');
-const csv = require('csv-parser');
-const db = require('../db/db.js');
+const Promise = require("bluebird");
 
-var reviews = __dirname + '/../../../DATA/reviews.csv';
 
-const results = [];
+const reviews = require('./etl_reviews.js');
+const photos = require('./etl_photos.js');
+const characteristics = require('./etl_characteristics.js');
+const characteristicsReviews = require('./etl_characteristics_reviews');
 
-fs.createReadStream(reviews)
-  .pipe(csv({}))
-  .on('data', (data) => {
-    //format date
-    let temp = Date(data.date);
-    let date = new Date(temp);
-    let parsedDateString = new Date(date.getTime() - (date.getTimezoneOffset() * 60000 )).toISOString().split("T")[0];
-    //parse response
-    let parsedResponse = data.response;
-    if (parsedResponse === 'null') {
-      parsedResponse = null;
-    }
-    //put it in array
-    let transformedData =
-    [
-      Number(data.id),
-      Number(data.rating),
-      parsedDateString,
-      data.summary,
-      data.body,
-      Boolean(data.recommend),
-      Boolean(data.reported),
-      data.reviewer_name,
-      data.reviewer_email,
-      parsedResponse,
-      Number(data.helpfulness)
-    ];
-    //load it into the database!!
-    db.insertIntoReviews(transformedData);
-    // console.log(transformedData);
-  })
-  .on('end', () => {
-    console.log('INSERTED ALL REVIEWS INTO DATABASE!!!!!!!!!!!!');
-  });
+// const reviewPromise = Promise.promisify(reviews.etlReview);
+// const photosPromise = Promise.promisify(photos.etlPhotos);
+// const charsPromise = Promise.promisify(characteristics.etlCharacteristics);
+// const charsReviewsPromise = Promise.promisify(characteristicsReviews.etlCharacteristicReviews);
+
+// reviewPromise()
+// .then(() => {
+//   photosPromise();
+// })
+// .then(() => {
+//   charsPromise();
+// })
+// .then(() => {
+//   charsReviewsPromise();
+// })
+// .then(() => {
+//   console.log('fin!!');
+// })
+
+// reviews.etlReview()
+// .then(() => {
+//   console.log('test');
+// })
+// photos.etlPhotos();
+// characteristics.etlCharacteristics();
+characteristicsReviews.etlCharacteristicReviews();
