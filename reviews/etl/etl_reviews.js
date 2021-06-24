@@ -45,13 +45,13 @@ const etlReview = () => {
   .on('data', () => {
     readable.pause();
     setTimeout(() => {
-      console.log('Now data starts flowing again.');
+      // console.log('Now data starts flowing again.');
       readable.resume();
-    }, 15000);
+    }, 20000);
   })
   .on('end', () => {
     console.log('INSERTED ALL REVIEWS INTO DATABASE!!!!!!!!!!!!');
   });
 }
 
-etlReview();
+module.exports.etlReview = etlReview;

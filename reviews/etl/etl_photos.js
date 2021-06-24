@@ -16,13 +16,13 @@ const etlPhotos = () => {
   .on('data', () => {
     readable.pause();
     setTimeout(() => {
-      console.log('Now data starts flowing again.');
+      // console.log('Now data starts flowing again.');
       readable.resume();
-    }, 15000);
+    }, 5000);
   })
   .on('end', () => {
-    console.log('INSERTED ALL REVIEWS INTO PHOTOS!!!!!!!!!!!!');
+    console.log('INSERTED ALL PHOTOS INTO PHOTOS!!!!!!!!!!!!');
   });
 }
 
-etlPhotos();
+module.exports.etlPhotos = etlPhotos;

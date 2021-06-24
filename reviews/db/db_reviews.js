@@ -8,6 +8,15 @@ const connection = mysql.createConnection({
   database: 'SDC',
 });
 
+module.exports.getNReviews = (id, count, cb) => {
+  connection.execute(`SELECT * FROM reviews where product_id=${id} ORDER BY id DESC LIMIT ${count}`, (err, result) => {
+    if (err) {
+      cb(err);
+    } else {
+      cb(null, result);
+    }
+  })
+}
 
 module.exports.insertIntoReviews = (array) => {
   return connection.execute(

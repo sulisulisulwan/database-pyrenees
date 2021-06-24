@@ -17,13 +17,13 @@ const etlCharacteristicReviews = () => {
   .on('data', () => {
     readable.pause();
     setTimeout(() => {
-      console.log('Now data starts flowing again.');
+      // console.log('Now data starts flowing again.');
       readable.resume();
-    }, 15000);
+    }, 60000);
   })
   .on('end', () => {
-    console.log('INSERTED ALL REVIEWS INTO PHOTOS!!!!!!!!!!!!');
+    console.log('INSERTED ALL CHARACTERISTICS REVIEWS INTO PHOTOS!!!!!!!!!!!!');
   });
 }
 
-etlCharacteristicReviews();
+module.exports.etlCharacteristicReviews = etlCharacteristicReviews;
