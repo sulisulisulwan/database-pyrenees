@@ -9,15 +9,12 @@ const RELATED_ETL = require('./related.js');
 
 
 let formatForDatabase = (line, preexistingKeys, isFirstLine) => {
-  //column1,column2,column3
-  // console.log('the line is ', line)
-  // console.log('the preexisting keys are  ', preexistingKeys)
-  // console.log('is it the first line? ', isFirstLine)
   let keys = []
   let tableEntry = {}
   let field = line.split(',')
 
   if (isFirstLine === true) {
+
     field.forEach(key => keys.push(key))
     return keys;
   }

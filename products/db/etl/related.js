@@ -30,28 +30,41 @@ const db = require('../db.js')
       clearInterval(rebootStream)
       readLine.resume()
     } else {
+      if (lineCount > 4508251) {
+        console.log('line is', line)
+      }
       let splitLine = line.split(',')
+      if (lineCount > 4508251) {
+        console.log('splitline is', splitLine)
+      }
       if (splitLine[1] === currentProductID) {
         relatedProducts.push(Number(splitLine[2]))
+        if (lineCount > 4508251) {
+          console.log('if splite line [1] is current product id, this is pushed', relatedProducts)
+        }
       } else if (currentProductID === null) {
         currentProductID = splitLine[1];
+        if (lineCount > 4508251) {
+          console.log('if current product id is null, currentProductId is', currentProductID)
+        }
       } else {
         let id = currentProductID;
+        if (lineCount > 4508251) {
+          console.log('id is ', id)
+        }
         let loadRelatedProducts = JSON.stringify(relatedProducts)
         currentProductID = splitLine[1]
         relatedProducts = [];
         //QUERY
         let q = `INSERT INTO Related_Products (ID, Product_IDs) VALUES (?, ?)`;
         let v = [Number(id), loadRelatedProducts]
-        if (id > 1000000) {
-          console.log(v);
-        }
         let insertField = () => {
           return new Promise((resolve, reject) => {
             db.query(q, v, (error, result) => {
               if (error) {
                 reject(new Error(error))
               } else {
+                buffer--;
                 rowsInserted = result.insertId
                 resolve(result);
               }
@@ -61,21 +74,9 @@ const db = require('../db.js')
         insertField()
         .then((result) => {
           rowCount++;
-          if (rowCount > 1000000) {
-            console.log('rowCount', rowCount)
-            console.log(result)
-          } else if (rowCount % 10000 === 0) {
-            console.log(rowCount);
-          }
-          if (buffer > 600) {
+          if (buffer === 1) {
             buffer = 0;
-              if (rebootStream['_repeat'] !== undefined) {
-                clearInterval(rebootStream)
-              }
-            clearInterval(rebootStream)
             readLine.resume();
-          } else {
-            buffer++;
           }
         })
         .catch((error) => {
@@ -92,6 +93,7 @@ readLine.on('pause', ()=> {
 })
 
 readLine.on('close', () => {
+  console.log('DATA STREAM CLOSED')
   clearInterval(rebootStream);
 })
 

@@ -43,6 +43,7 @@ const PRODUCT_ETL = () => {
                   reject(new Error(error))
                 } else {
                   console.log(result)
+                  buffer--;
                   rowsInserted = result.insertId
                   resolve(result);
                 }
@@ -52,12 +53,9 @@ const PRODUCT_ETL = () => {
           insertField()
           .then((result) => {
             console.log(result);
-            if (buffer > 200) {
+            if (buffer === 1) {
               buffer = 0;
               readLine.resume();
-            } else {
-              console.log(buffer)
-              buffer++;
             }
           })
           .catch((error) => {
@@ -73,8 +71,9 @@ const PRODUCT_ETL = () => {
         reject('product.csv failed to properly load to SQL database')
       }
     });
-  }
+  })
 }
+
 
 
 
