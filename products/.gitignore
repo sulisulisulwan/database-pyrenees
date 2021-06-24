@@ -1,7 +1,6 @@
 # CSV Files
 db/raw_data
 
-
 .DS_Store
 NPM
 node_modules/
