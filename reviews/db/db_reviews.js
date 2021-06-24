@@ -10,7 +10,7 @@ const connection = mysql.createConnection({
 
 
 module.exports.insertIntoReviews = (array) => {
-  connection.execute(
+  return connection.execute(
     'INSERT INTO REVIEWS'
     + '(product_id, rating, date, summary, body, recommend,'
     + 'reported, reviewer_name, reviewer_email, response, helpfullness) '
@@ -19,7 +19,7 @@ module.exports.insertIntoReviews = (array) => {
       if (err) {
         console.log(err);
       } else {
-        console.log('inserted!!');
+        // console.log('inserted!!');
       }
     }
   );

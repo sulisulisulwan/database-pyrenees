@@ -25,3 +25,20 @@ CREATE TABLE photos (
   PRIMARY KEY (id),
   FOREIGN KEY (review_id) REFERENCES reviews(id)
 );
+
+CREATE TABLE characteristics (
+  id int NOT NULL AUTO_INCREMENT,
+  product_id int,
+  name varchar(100),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE characteristics_reviews (
+  id int NOT NULL AUTO_INCREMENT,
+  characteristic_id int,
+  review_id int,
+  value int,
+  PRIMARY KEY (id),
+  FOREIGN KEY (characteristic_id) REFERENCES characteristics(id),
+  FOREIGN KEY (review_id) REFERENCES reviews(id)
+);

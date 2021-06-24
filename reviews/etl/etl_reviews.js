@@ -4,9 +4,11 @@ const db = require('../db/db.js');
 
 var reviews = __dirname + '/../../../DATA/reviews.csv';
 
-const results = [];
+var results = [];
 
-fs.createReadStream(reviews)
+const etlReview = () => {
+  const readable = fs.createReadStream(reviews);
+  readable
   .pipe(csv({}))
   .on('data', (data) => {
     //format date
@@ -35,8 +37,20 @@ fs.createReadStream(reviews)
     ];
     //load it into the database!!
     db.insertIntoReviews(transformedData);
-    // console.log(transformedData);
+    // results.push(transformedData);
+    // console.log(results.length);
+    // // this.pause();
+  })
+  .on('data', () => {
+    readable.pause();
+    setTimeout(() => {
+      console.log('Now data starts flowing again.');
+      readable.resume();
+    }, 15000);
   })
   .on('end', () => {
     console.log('INSERTED ALL REVIEWS INTO DATABASE!!!!!!!!!!!!');
   });
+}
+
+const is = etlReview();
