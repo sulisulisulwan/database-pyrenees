@@ -2,7 +2,7 @@ const fs = require('fs');
 const csv = require('csv-parser');
 const db = require('../db/db_characteristics_reviews.js');
 
-var characteristicReviews = __dirname + '/../../../DATA/characteristic_reviews.csv';
+var characteristicReviews = __dirname + '/../../../DATA/characteristic_reviews-19.csv';
 
 const etlCharacteristicReviews = () => {
   const readable = fs.createReadStream(characteristicReviews);
@@ -19,7 +19,7 @@ const etlCharacteristicReviews = () => {
     setTimeout(() => {
       // console.log('Now data starts flowing again.');
       readable.resume();
-    }, 60000);
+    }, 1000);
   })
   .on('end', () => {
     console.log('INSERTED ALL CHARACTERISTICS REVIEWS INTO PHOTOS!!!!!!!!!!!!');
