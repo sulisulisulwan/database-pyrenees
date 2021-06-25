@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
 const port = 3000;
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
+const dbReviews = require('./db/db_reviews.js');
+
 app.use(bodyParser.json());
 
 app.get('/reviews', (req, res) => {
