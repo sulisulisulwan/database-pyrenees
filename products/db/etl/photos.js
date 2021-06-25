@@ -26,7 +26,6 @@ const db = require('../db.js')
       keyCollection.forEach(key => keys.push(key));
       isFirstLine = false;
     } else {
-      buffer++;
       field = etl.formatForDatabase(line, keys, isFirstLine)
       let id = Object.keys(field)[0];
       let thumbnail_url = field[id].thumbnail_url
@@ -46,6 +45,7 @@ const db = require('../db.js')
           })
         })
       }
+      buffer++;
       insertField()
       .then((result) => {
         buffer--;

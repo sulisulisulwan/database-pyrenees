@@ -25,7 +25,6 @@ const db = require('../db.js')
         keyCollection.forEach(key => keys.push(key));
         isFirstLine = false;
       } else {
-        buffer++
         field = etl.formatForDatabase(line, keys, isFirstLine)
         let id = Number(Object.keys(field)[0]);
         let quantity = field[id].quantity
@@ -46,6 +45,7 @@ const db = require('../db.js')
             })
           })
         }
+        buffer++;
         insertField()
         .then((result) => {
           buffer--

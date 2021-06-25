@@ -26,7 +26,6 @@ const db = require('../db.js')
         isFirstLine = false;
         return;
       } else {
-        buffer++;
         field = etl.formatForDatabase(line, keys, isFirstLine)
         let id = Object.keys(field)[0];
         let name = field[id].name
@@ -49,6 +48,7 @@ const db = require('../db.js')
             })
           })
         }
+        buffer++;
         insertField()
         .then((result) => {
           rowCount++;

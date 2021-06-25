@@ -23,7 +23,6 @@ const PRODUCT_ETL = () => {
           keyCollection.forEach(key => keys.push(key));
           isFirstLine = false;
         } else {
-          buffer++;
           field = etl.formatForDatabase(line, keys, isFirstLine)
           let id = Number(Object.keys(field)[0]);
           let name = field[id].name
@@ -45,6 +44,7 @@ const PRODUCT_ETL = () => {
               })
             })
           }
+          buffer++;
           insertField()
           .then((result) => {
             buffer--;

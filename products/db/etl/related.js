@@ -4,7 +4,7 @@ const etl = require('./etl.js');
 const rl = require('readline')
 const db = require('../db.js')
 
-
+console.log('updated2')
 // const SKUS_ETL = () => {
 //   return new Promise ((resolve, reject) => {
   let relatedProducts = [];
@@ -19,10 +19,9 @@ const db = require('../db.js')
       input: readStream
   });
   let currentProductID = null;
-
+  let itWentThrough = false;
   readLine.on('line', (line) => {
     readLine.pause();
-    buffer++
     if (isFirstLine) {
       isFirstLine = false;
       buffer--
@@ -39,7 +38,15 @@ const db = require('../db.js')
         currentProductID = splitLine[1]
         relatedProducts = [];
         let q = `INSERT INTO Related_Products (ID, Product_IDs) VALUES (?, ?)`;
+
         let v = [Number(id), loadRelatedProducts]
+        if (
+          line === '4508258,1000011,275004' || line === '4508259,1000011,93556'
+        || line === '4508260,1000011,125885' || line === '4508261,1000011,166656'
+        || line === '4508262,1000011,875619' || line === '4508263,1000011,592637') {
+          itWentThrough = true;
+          console.log(line, 'values is ', v)
+        }
         let insertField = () => {
           return new Promise((resolve, reject) => {
             db.query(q, v, (error, result) => {
@@ -53,8 +60,12 @@ const db = require('../db.js')
             })
           })
         }
+        buffer++
         insertField()
         .then((result) => {
+          if(itWentThrough) {
+            // console.log(result);
+          }
           rowCount++;
           buffer--;
           if (rowCount % 5000 === 0) {

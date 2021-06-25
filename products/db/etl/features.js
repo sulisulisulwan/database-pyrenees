@@ -28,7 +28,6 @@ const FEATURES_ETL = () => {
         keyCollection.forEach(key => keys.push(key));
         isFirstLine = false;
       } else {
-        buffer++
         field = etl.formatForDatabase(line, keys, isFirstLine)
         let id = Object.keys(field)[0];
         let feature = field[id].feature;
@@ -48,6 +47,7 @@ const FEATURES_ETL = () => {
             })
           })
         }
+        buffer++;
         insertField()
         .then((result) => {
           rowCount++;
