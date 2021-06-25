@@ -8,21 +8,24 @@ const db = require('./db/db.js')
  ***************************************/
 
 
-let queryProducts = () => {
+let queryProducts = (params) => {
   return new Promise((resolve, reject) => {
-    // let q = `SELECT * FROM Products`
-    // db.query(q, (err, result)=> {
-      let err = undefined //DELETE THIS
+    let page = params.page;
+    let count = params.count;
+    let idMaxRange = page * 10;
+    let idMinRange = idMaxRange - 9;
+    let chosenMaxRange = count - 1 + idMinRange
+
+    let q = `SELECT * FROM Products WHERE ID >= ${idMinRange} AND ID <= ${chosenMaxRange};`
+    db.query(q, (err, result)=> {
       if (err) {
         reject(new Error(err))
       } else {
-        resolve('it works at the moment')
-        // resolve(result)
+        resolve(result)
       }
-      // })
     })
-  }
-
+  })
+}
 let queryProductById = (productID) => {
   return new Promise((resolve, reject) => {
     // let q = `SELECT * FROM Products WHERE ID = ${productID};`
@@ -37,7 +40,6 @@ let queryProductById = (productID) => {
     // })
   })
 }
-
 let queryProductStyles = (productID) => {
   return new Promise((resolve, reject) => {
     // let q = `SELECT * FROM Product_Styles WHERE Product_ID = ${productID};`
@@ -51,9 +53,7 @@ let queryProductStyles = (productID) => {
       }
       // })
     })
-  }
-
-
+}
 let queryFeatures = (productID) => {
   return new Promise((resolve, reject) => {
     // let q = `SELECT * FROM Features WHERE Product_ID = ${productID};`
@@ -67,8 +67,7 @@ let queryFeatures = (productID) => {
       }
       // })
     })
-  }
-
+}
 let querySKUs = (styleID) => {
   return new Promise((resolve, reject) => {
     //THIS MAY HAVE TO BE A JOINED TABLE
@@ -84,7 +83,6 @@ let querySKUs = (styleID) => {
       // })
     })
 }
-
 let queryPhotos = (styleID) => {
   return new Promise((resolve, reject) => {
     // let q = `SELECT * FROM Photos WHERE Style_ID = ${styleID}`
@@ -99,7 +97,6 @@ let queryPhotos = (styleID) => {
     })
     // })
 }
-
 let queryRelatedProducts = (productID) => {
   return new Promise((resolve, reject) => {
   // let q = `SELECT * FROM Related_Products WHERE ID = ${productID}`
@@ -123,13 +120,22 @@ let queryRelatedProducts = (productID) => {
 
 
 
-const getAllProducts = () => {
-  //query products table
+const getAllProducts = (params) => {
   return new Promise ((resolve, reject) => {
-    queryProducts()
+    queryProducts(params)
     .then(allProducts => {
-      let formattedData = 'TODO:';
-      console.log('format this', allProducts);
+      let formattedData = []
+      let dataPacketKeys = Object.keys(allProducts);
+      dataPacketKeys.forEach(key => {
+        let product = {}
+        product.id = allProducts[key].ID;
+        product.name = allProducts[key].Name;
+        product.slogan = allProducts[key].Slogan;
+        product.description = allProducts[key].Prod_Description;
+        product.category = allProducts[key].Category;
+        product.default_price = allProducts[key].Default_Price;
+        formattedData.push(product)
+      });
       resolve(formattedData);
     })
     .catch(error => {

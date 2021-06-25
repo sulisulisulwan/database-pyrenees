@@ -15,10 +15,25 @@ app.listen(port, () => {
  *********************************/
 
 app.get('/products', (req, res) => {
-  models.getAllProducts()
+  let pageAndCount = {
+    page: '1',
+    count: '5'
+  }
+  let params = req.url.replace('/products/', '')
+  params = params.replace('?', '').split('&')
+  params.forEach(param => {
+    param = param.split('=');
+    pageAndCount[param[0]] = param[1];
+  })
+  pageAndCount.count = Number(pageAndCount.count) > 10 ? '10' : pageAndCount.count;
+
+  models.getAllProducts(pageAndCount)
   .then(result => {
-    console.log(result)//EXPECT result to be 'TODO:'
-    res.sendStatus(200)
+    res.status(200)
+    .json(result)
+  })
+  .catch(error => {
+    res.sendStatus(500)
   })
 })
 
@@ -32,6 +47,7 @@ app.get('/products/:product_id', (req, res) => {
   })
   .catch(error => {
     console.log(new Error(error))
+    res.sendStatus(500)
   })
 })
 
@@ -45,6 +61,7 @@ app.get('/products/:product_id/styles', (req, res) => {
   })
   .catch(error => {
     console.log(new Error(error))
+    res.sendStatus(500)
   })
 })
 
@@ -58,5 +75,6 @@ app.get('/products/:product_id/related', (req, res) => {
   })
   .catch(error => {
     console.log(new Error(error))
+    res.sendStatus(500)
   })
 })
