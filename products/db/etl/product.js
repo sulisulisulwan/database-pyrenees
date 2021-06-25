@@ -6,12 +6,10 @@ const db = require('../db.js')
 
 const PRODUCT_ETL = () => {
   return new Promise ((resolve, reject) => {
-    let product = {};
     let keys = [];
     let field;
     let isFirstLine = true;
     let buffer = 0
-    let errors = [];
     let rowsInserted;
     let readStream = fs.createReadStream(__dirname.substring(0, __dirname.length - 3) + 'raw_data/product.csv', 'utf8')
     let readLine = rl.createInterface({
@@ -19,14 +17,13 @@ const PRODUCT_ETL = () => {
     });
 
     readLine.on('line', (line) => {
-      errors.push(line)
       readLine.pause();
         if (isFirstLine) {
           let keyCollection = etl.formatForDatabase(line, undefined, isFirstLine)
           keyCollection.forEach(key => keys.push(key));
           isFirstLine = false;
-          readLine.resume()
         } else {
+          buffer++;
           field = etl.formatForDatabase(line, keys, isFirstLine)
           let id = Number(Object.keys(field)[0]);
           let name = field[id].name
@@ -42,8 +39,6 @@ const PRODUCT_ETL = () => {
                 if (error) {
                   reject(new Error(error))
                 } else {
-                  console.log(result)
-                  buffer--;
                   rowsInserted = result.insertId
                   resolve(result);
                 }
@@ -52,14 +47,17 @@ const PRODUCT_ETL = () => {
           }
           insertField()
           .then((result) => {
-            console.log(result);
-            if (buffer === 1) {
+            buffer--;
+            if (rowCount % 5000 === 0) {
+              console.log(rowCount)
+            }
+            if (buffer === 0) {
               buffer = 0;
               readLine.resume();
             }
           })
           .catch((error) => {
-            errors.push(JSON.stringify(error))
+            console.log(error)
           })
         }
     })

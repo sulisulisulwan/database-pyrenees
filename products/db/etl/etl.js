@@ -3,7 +3,7 @@ const db = require('../db');
 // const FEATURES_ETL = require('./features.js');
 // const PHOTOS_ETL = require('./photos.js');
 // const PRODUCT_ETL = require('./product.js');
-const RELATED_ETL = require('./related.js');
+// const RELATED_ETL = require('./related.js');
 // const SKUS_ETL = require('./skus.js');
 // const STYLES_ETL = require('./styles.js');
 
@@ -34,6 +34,8 @@ let formatForDatabase = (line, preexistingKeys, isFirstLine) => {
       || key === 'slogan'
       || key === 'description'
       || key === 'category'
+      || key === 'feature'
+      || key === 'value'
       ) ? field[i].replace('"', '').replace('"', '')
       : (key === 'id' || key === 'style_id' || key === 'quantity' || 'productId') ? Number(field[i])
       : key === 'default?' ? ((field[i] === 'true') ? true : false)
@@ -50,26 +52,6 @@ let formatForDatabase = (line, preexistingKeys, isFirstLine) => {
 // .catch(
 //   console.log('error')
 // )
-
-// RELATED_ETL()
-//   .then(relatedProducts => {
-//     //ID will be id
-//     //relatedProducts[id] will be Product_IDs
-//     //table will be Related_Products
-//     for (let id in relatedProducts) {
-//       let insertQuery = async function (values) {
-//           let q = `INSERT INTO Related_Products (Product_IDs) VALUES ? ;`;
-//           db.connection.query(q, values, (error, results) => {
-//             if (error) {
-//               throw new Error(error)
-//             } else {
-//               console.log('successfully added entry')
-//             }
-//           })
-//       }
-//       await insertQuery(relatedProducts[id]);
-//     }
-//   })
 
 module.exports = {
   formatForDatabase: formatForDatabase
