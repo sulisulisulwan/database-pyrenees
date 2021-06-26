@@ -108,7 +108,6 @@ let queryRelatedProducts = (productID) => {
  ******************************************************************************/
 
 
-
 const getAllProducts = (params) => {
   return new Promise ((resolve, reject) => {
     queryProducts(params)
