@@ -4,19 +4,17 @@ const etl = require('./etl.js');
 const rl = require('readline')
 const db = require('../db.js')
 
-// const PRODUCT_ETL = () => {
-//   return new Promise ((resolve, reject) => {
-    let rowCount = 0;
+const PRODUCT_ETL = () => {
+  return new Promise ((resolve, reject) => {
     let keys = [];
     let field;
     let isFirstLine = true;
-    let buffer = 0
-    let rowsInserted;
+    let buffer = 0;
+    let rowCount = 0;
     let readStream = fs.createReadStream(__dirname.substring(0, __dirname.length - 3) + 'raw_data/skus.csv', 'utf8')
     let readLine = rl.createInterface({
-        input: readStream
+      input: readStream
     });
-    let currentProductID = null;
 
     readLine.on('line', (line) => {
       readLine.pause();
@@ -35,13 +33,7 @@ const db = require('../db.js')
         let insertField = () => {
           return new Promise((resolve, reject) => {
             db.query(q, v, (error, result) => {
-              if (error) {
-                console.log(error);
-                reject(new Error(error))
-              } else {
-                rowsInserted = result.insertId
-                resolve(result);
-              }
+              error ? reject(new Error(error)) : resolve(result);
             })
           })
         }
@@ -50,6 +42,9 @@ const db = require('../db.js')
         .then((result) => {
           buffer--
           rowCount++
+          if (rowCount === 11323917) {
+            resolve('skus.csv uploaded to SQL database')
+          }
           if (rowCount % 5000 === 0) {
             console.log(rowCount)
           }
@@ -59,19 +54,11 @@ const db = require('../db.js')
         })
         .catch((error) => {
           console.log(error)
-        })
+        });
       }
-    })
+    });
+    // reject('skus.csv failed to properly load to SQL database')
+  });
+}
 
-      // readLine.on('close', () => {
-      //   if (rowsInserted === ?) {
-      //     resolve('skus.csv uploaded to SQL database')
-      //   } else {
-      //     reject('skus.csv failed to properly load to SQL database')
-      //   }
-      // });
-    // }
-//   }
-// }
-
-// module.exports = SKUS_ETL;
+module.exports = SKUS_ETL;
