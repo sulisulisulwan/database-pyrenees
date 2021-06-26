@@ -56,11 +56,10 @@ app.get('/products/:product_id', (req, res) => {
 
 
 app.get('/products/:product_id/styles', (req, res) => {
-  // console.log(req.params)
-  models.getProductStyles(10011)
+  let id = req.url.replace('/products/', '').replace('/styles', '');
+  models.getProductStyles(id)
   .then(result => {
-    console.log(result)//EXPECT result to be {product_id: 'something', results: []}
-    res.sendStatus(200)
+    res.status(200).json(result);
   })
   .catch(error => {
     console.log(new Error(error))

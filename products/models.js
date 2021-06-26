@@ -26,7 +26,6 @@ let queryProducts = (params) => {
     })
   })
 }
-
 let queryProductById = (productID) => {
   return new Promise((resolve, reject) => {
     let q = `SELECT * FROM Products WHERE ID = ${productID};`
@@ -39,22 +38,18 @@ let queryProductById = (productID) => {
     })
   })
 }
-
 let queryProductStyles = (productID) => {
   return new Promise((resolve, reject) => {
-    // let q = `SELECT * FROM Product_Styles WHERE Product_ID = ${productID};`
-    // db.query(q, (err, result)=> {
-      let err = undefined //DELETE THIS
+    let q = `SELECT * FROM Product_Styles WHERE Product_ID = ${productID};`
+    db.query(q, (err, result)=> {
       if (err) {
         reject(new Error(err))
       } else {
-        resolve('it works at the moment')
-        // resolve(result)
+        resolve(result)
       }
-      // })
     })
+  })
 }
-
 let queryFeatures = (productID) => {
   return new Promise((resolve, reject) => {
     let q = `SELECT * FROM Features WHERE Product_ID = ${productID};`
@@ -67,35 +62,30 @@ let queryFeatures = (productID) => {
     })
   })
 }
-
 let querySKUs = (styleID) => {
   return new Promise((resolve, reject) => {
     //THIS MAY HAVE TO BE A JOINED TABLE
-    // let q = `SELECT * FROM SKUs WHERE Style_ID = ${styleID};`
-    // db.query(q, (err, result)=> {
-      let err = undefined //DELETE THIS
+    let q = `SELECT * FROM SKUs WHERE Style_ID = ${styleID};`
+    db.query(q, (err, result)=> {
       if (err) {
         reject(new Error(err))
       } else {
-        resolve('it works at the moment')
-        // resolve(result)
+        resolve(result)
       }
-      // })
     })
+  })
 }
 let queryPhotos = (styleID) => {
   return new Promise((resolve, reject) => {
-    // let q = `SELECT * FROM Photos WHERE Style_ID = ${styleID}`
-    // db.query(q, (err, result)=> {
-      let err = undefined //DELETE THIS
+    let q = `SELECT * FROM Photos WHERE Style_ID = ${styleID}`
+    db.query(q, (err, result)=> {
       if (err) {
         reject(new Error(err))
       } else {
-        resolve('it works at the moment')
-        // resolve(result)
+        resolve(result)
       }
     })
-    // })
+  })
 }
 let queryRelatedProducts = (productID) => {
   return new Promise((resolve, reject) => {
@@ -182,52 +172,88 @@ const getProductById = (productID) => {
 }
 
 const getProductStyles = (productID) => {
+  let stylesData;
+  let skusData;
+  let skusPromises = []
+  let photosPromises = [];
+  let styleID;
   return new Promise((resolve, reject) => {
     queryProductStyles(productID)
     .then(results => {
-      //after query this query is done RESULT SHOULD BE MULTIPLE ROWS
-      let styleID;
-      let styles; //this will be an array of all style row
-      let skusPromises = [];
-      let photosPromises = [];
-      //iterate through all rows
-      for (let i = 0; i < styles.length; i++) {
-        styleID //will equal the current iterated rows id
+      stylesData = results;
+      for (let i = 0; i < stylesData.length; i++) {
+        styleID = stylesData[i].ID;
         skusPromises.push(querySKUs(styleID));
+      }
+      return Promise.all(skusPromises)
+    })
+    .then(results => {
+      skusData = results;
+      for (let i = 0; i < stylesData.length; i++) {
+        styleID = stylesData[i].ID;
         photosPromises.push(queryPhotos(styleID));
       }
-      let allDataPromises = [skusPromises, photosPromises]
-      return Promise.all(allDataPromises)
+      return Promise.all(photosPromises)
     })
-    .then(allData => {
-      let skusData = allData[0]
-      let photosData = allData[1]
+    .then(photosData => {
 
-      //STYLES TEMPLATE
       let formattedData = {
         product_id: `${productID}`,
-        results: [] //this will be filled with objects of nested data
+        results: []
       }
 
-      let styleResult = {
-        style_id: null,
-        name: null,
-        original_price: null,
-        sale_price: null,
-        'default?': null,
-        photos: null, //this needs to be an array
-        skus: null//this will be an object of objects
+      class StyleResultTemplate {
+        constructor (styleId, name, originalPrice, salePrice, defaultStyle, photos, skus) {
+          this.style_id = styleId,
+          this.name = name,
+          this.original_price = originalPrice,
+          this.sale_price = salePrice,
+          this['default?'] = defaultStyle,
+          this.photos = photos
+          this.skus = skus
+        }
       }
 
-      let photos = {
-        thumbnail_url: null,
-        url: null
+      let SKUs = {}
+      for (let i = 0; i < skusData.length; i++) {
+        for (let j = 0; j < skusData[i].length; j++) {
+          let sku = skusData[i][j]
+          if (SKUs[sku.Style_ID] === undefined) {
+            SKUs[sku.Style_ID] = {};
+          }
+          SKUs[sku.Style_ID][sku.ID] = {
+            quantity: sku.Quantity,
+            size: sku.Size
+          }
+
+        }
       }
 
-      let skus = {}
-      for (let i = 0; i < styles.length; i++) {
-        //FILL OUT TEMPLATE HERE;
+
+
+      let photos = {}
+      for (let i = 0; i < photosData.length; i++) {
+        for (let j = 0; j < photosData[i].length; j++) {
+          let photo = photosData[i][j];
+          if (photos[photo.Style_ID] === undefined) {
+            photos[photo.Style_ID] = [];
+          }
+          photos[photo.Style_ID].push({
+            thumbnail_url: photo.Thumbnail_URL,
+            url: photo.URL
+          })
+        }
       }
+
+      let s = stylesData;
+      // console.log(photos)
+      // console.log(SKUs)
+      for (let i = 0; i < s.length; i++) {
+        let newResult = new StyleResultTemplate(s[i].ID, s[i].Name, s[i].Original_Price, s[i].Sale_Price, s[i].Default_Style, photos[`${s[i].ID}`], SKUs[`${s[i].ID}`]);
+        formattedData.results.push(newResult);
+      }
+      console.log(formattedData)
+
       resolve(formattedData);
     })
     .catch(error => {
