@@ -69,11 +69,10 @@ app.get('/products/:product_id/styles', (req, res) => {
 
 
 app.get('/products/:product_id/related', (req, res) => {
-  // console.log(req.params)
-  models.getRelatedProducts(10011)
+  let id = req.url.replace('/products/', '').replace('/related', '');
+  models.getRelatedProducts(id)
   .then(result => {
-    console.log(result)//EXPECT result to be ['TODO:']
-    res.sendStatus(200)
+    res.status(200).json(result);
   })
   .catch(error => {
     console.log(new Error(error))

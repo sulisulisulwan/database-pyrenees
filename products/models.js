@@ -88,25 +88,24 @@ let queryPhotos = (styleID) => {
   })
 }
 let queryRelatedProducts = (productID) => {
+  console.log('ID IS ', productID)
   return new Promise((resolve, reject) => {
-  // let q = `SELECT * FROM Related_Products WHERE ID = ${productID}`
-  // db.query(q, (err, result)=> {
-    let err = undefined //DELETE THIS
-    if (err) {
-      reject(new Error(err))
-    } else {
-      resolve('it works at the moment')
-      // resolve(result)
-    }
+    let q = `SELECT * FROM Related_Products WHERE ID = ${productID}`
+    db.query(q, (err, result)=> {
+      if (err) {
+        reject(new Error(err))
+      } else {
+        resolve(result)
+      }
+    })
   })
-  // })
 }
 
-/************************************
+/******************************************************************************
  *
  *            ENDPOINT ROUTINGS
  *
- ************************************/
+ ******************************************************************************/
 
 
 
@@ -230,7 +229,6 @@ const getProductStyles = (productID) => {
       }
 
 
-
       let photos = {}
       for (let i = 0; i < photosData.length; i++) {
         for (let j = 0; j < photosData[i].length; j++) {
@@ -246,8 +244,6 @@ const getProductStyles = (productID) => {
       }
 
       let s = stylesData;
-      // console.log(photos)
-      // console.log(SKUs)
       for (let i = 0; i < s.length; i++) {
         let newResult = new StyleResultTemplate(s[i].ID, s[i].Name, s[i].Original_Price, s[i].Sale_Price, s[i].Default_Style, photos[`${s[i].ID}`], SKUs[`${s[i].ID}`]);
         formattedData.results.push(newResult);
@@ -266,13 +262,10 @@ const getProductStyles = (productID) => {
 
 const getRelatedProducts = (productID) => {
   return new Promise ((resolve, reject) =>{
-    queryRelatedProducts()
+    queryRelatedProducts(productID)
     .then(results => {
-      //check format
-      //probably JSON.parse(results?)
-      let formattedData = ['TODO:'] //this could be directly assigned to the parsed results
-      console.log(results)
-      resolve(formattedData);
+      let formattedData = results[0].Product_IDs
+      resolve(JSON.parse(formattedData));
     })
     .catch(error => {
       error = new Error(error)
