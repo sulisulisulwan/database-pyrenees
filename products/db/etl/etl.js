@@ -4,8 +4,6 @@ const options = require('./etlTemplateOptions');
 const etl = require('./etlTemplate.js');
 
 
-etl.ETL_TEMPLATE
-
 etl.ETL_TEMPLATE(options.productOptions)
   .then(_=> {
     return etl.ETL_TEMPLATE(options.stylesOptions)
