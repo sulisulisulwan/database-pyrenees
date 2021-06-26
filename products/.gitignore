@@ -5,3 +5,4 @@ db/raw_data
 NPM
 node_modules/
 
+db/etl/recycleBin

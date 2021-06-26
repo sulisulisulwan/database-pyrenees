@@ -13,3 +13,5 @@ Its Promise-based ETL system is built to withstand the importing of large CSV fi
 
 ## The Buffer
 The buffer system ameliorates Readline's `.pause()` data bleed-over by counting the line data instances in a buffer counter, which decrements with every resolved SQL insertion query promise.  The Readline stream resumes (`.resume()`) when the buffer counter reaches 0.
+
+This buffer system is its ability to be tested at a granular level if needed.
