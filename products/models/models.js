@@ -1,116 +1,9 @@
-const db = require('./db/db.js')
-
-
-/***************************************
- *
- *                  QUERIES
- *
- ***************************************/
-
-
-let queryProducts = (params) => {
-  return new Promise((resolve, reject) => {
-    let page = params.page;
-    let count = params.count;
-    let idMaxRange = page * 10;
-    let idMinRange = idMaxRange - 9;
-    let chosenMaxRange = count - 1 + idMinRange
-
-    let q = `SELECT * FROM Products WHERE ID >= ${idMinRange} AND ID <= ${chosenMaxRange};`
-    db.query(q, (err, result)=> {
-      if (err) {
-        reject(new Error(err))
-      } else {
-        resolve(result)
-      }
-    })
-  })
-}
-let queryProductById = (productID) => {
-  return new Promise((resolve, reject) => {
-    let q = `SELECT * FROM Products WHERE ID = ${productID};`
-    db.query(q, (err, result)=> {
-      if (err) {
-        reject(new Error(err))
-      } else {
-        resolve(result)
-      }
-    })
-  })
-}
-let queryProductStyles = (productID) => {
-  return new Promise((resolve, reject) => {
-    let q = `SELECT * FROM Product_Styles WHERE Product_ID = ${productID};`
-    db.query(q, (err, result)=> {
-      if (err) {
-        reject(new Error(err))
-      } else {
-        resolve(result)
-      }
-    })
-  })
-}
-let queryFeatures = (productID) => {
-  return new Promise((resolve, reject) => {
-    let q = `SELECT * FROM Features WHERE Product_ID = ${productID};`
-    db.query(q, (err, result)=> {
-      if (err) {
-        reject(new Error(err))
-      } else {
-        resolve(result)
-      }
-    })
-  })
-}
-let querySKUs = (styleID) => {
-  return new Promise((resolve, reject) => {
-    //THIS MAY HAVE TO BE A JOINED TABLE
-    let q = `SELECT * FROM SKUs WHERE Style_ID = ${styleID};`
-    db.query(q, (err, result)=> {
-      if (err) {
-        reject(new Error(err))
-      } else {
-        resolve(result)
-      }
-    })
-  })
-}
-let queryPhotos = (styleID) => {
-  return new Promise((resolve, reject) => {
-    let q = `SELECT * FROM Photos WHERE Style_ID = ${styleID}`
-    db.query(q, (err, result)=> {
-      if (err) {
-        reject(new Error(err))
-      } else {
-        resolve(result)
-      }
-    })
-  })
-}
-let queryRelatedProducts = (productID) => {
-  console.log('ID IS ', productID)
-  return new Promise((resolve, reject) => {
-    let q = `SELECT * FROM Related_Products WHERE ID = ${productID}`
-    db.query(q, (err, result)=> {
-      if (err) {
-        reject(new Error(err))
-      } else {
-        resolve(result)
-      }
-    })
-  })
-}
-
-/******************************************************************************
- *
- *            ENDPOINT ROUTINGS
- *
- ******************************************************************************/
-
+const db = require('../db/db.js')
+const q = require ('./queries.js')
 
 const getAllProducts = (params) => {
   return new Promise ((resolve, reject) => {
-    queryProducts(params)
+    q.queryProducts(params)
     .then(allProducts => {
       let formattedData = []
       let dataPacketKeys = Object.keys(allProducts);
@@ -136,8 +29,8 @@ const getAllProducts = (params) => {
 
 const getProductById = (productID) => {
   return new Promise ((resolve, reject) => {
-    let productPromise = queryProductById(productID)
-    let featuresPromise = queryFeatures(productID);
+    let productPromise = q.queryProductById(productID)
+    let featuresPromise = q.queryFeatures(productID);
     return Promise.all([productPromise, featuresPromise])
       .then(allData => {
         let product = allData[0]
@@ -176,12 +69,12 @@ const getProductStyles = (productID) => {
   let photosPromises = [];
   let styleID;
   return new Promise((resolve, reject) => {
-    queryProductStyles(productID)
+    q.queryProductStyles(productID)
     .then(results => {
       stylesData = results;
       for (let i = 0; i < stylesData.length; i++) {
         styleID = stylesData[i].ID;
-        skusPromises.push(querySKUs(styleID));
+        skusPromises.push(q.querySKUs(styleID));
       }
       return Promise.all(skusPromises)
     })
@@ -189,7 +82,7 @@ const getProductStyles = (productID) => {
       skusData = results;
       for (let i = 0; i < stylesData.length; i++) {
         styleID = stylesData[i].ID;
-        photosPromises.push(queryPhotos(styleID));
+        photosPromises.push(q.queryPhotos(styleID));
       }
       return Promise.all(photosPromises)
     })
@@ -261,7 +154,7 @@ const getProductStyles = (productID) => {
 
 const getRelatedProducts = (productID) => {
   return new Promise ((resolve, reject) =>{
-    queryRelatedProducts(productID)
+    q.queryRelatedProducts(productID)
     .then(results => {
       let formattedData = results[0].Product_IDs
       resolve(JSON.parse(formattedData));

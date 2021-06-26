@@ -1,5 +1,5 @@
 const express = require('express')
-const models = require('./models.js');
+const models = require('./models/models.js');
 const port = 3000
 const app = express();
 app.use(express.json())
