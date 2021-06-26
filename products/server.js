@@ -39,11 +39,14 @@ app.get('/products', (req, res) => {
 
 
 app.get('/products/:product_id', (req, res) => {
-  // console.log(req.params)
-  models.getProductById(10011)
+
+  //deal with edge cases where the input params are not valid OR
+  //id number is not found in database
+
+  let id = req.url.replace('/products/', '')
+  models.getProductById(id)
   .then(result => {
-    console.log(result)//EXPECT result to be 'TODO:'
-    res.sendStatus(200)
+    res.status(200).json(result)
   })
   .catch(error => {
     console.log(new Error(error))

@@ -26,20 +26,20 @@ let queryProducts = (params) => {
     })
   })
 }
+
 let queryProductById = (productID) => {
   return new Promise((resolve, reject) => {
-    // let q = `SELECT * FROM Products WHERE ID = ${productID};`
-    // db.query(q, (err, result)=> {
-      let err = undefined //DELETE THIS
+    let q = `SELECT * FROM Products WHERE ID = ${productID};`
+    db.query(q, (err, result)=> {
       if (err) {
         reject(new Error(err))
       } else {
-      resolve('it works at the moment')
-      // resolve(result)
-    }
-    // })
+        resolve(result)
+      }
+    })
   })
 }
+
 let queryProductStyles = (productID) => {
   return new Promise((resolve, reject) => {
     // let q = `SELECT * FROM Product_Styles WHERE Product_ID = ${productID};`
@@ -54,20 +54,20 @@ let queryProductStyles = (productID) => {
       // })
     })
 }
+
 let queryFeatures = (productID) => {
   return new Promise((resolve, reject) => {
-    // let q = `SELECT * FROM Features WHERE Product_ID = ${productID};`
-    // db.query(q, (err, result)=> {
-      let err = undefined //DELETE THIS
+    let q = `SELECT * FROM Features WHERE Product_ID = ${productID};`
+    db.query(q, (err, result)=> {
       if (err) {
         reject(new Error(err))
       } else {
-        resolve('it works at the moment')
-        // resolve(result)
+        resolve(result)
       }
-      // })
     })
+  })
 }
+
 let querySKUs = (styleID) => {
   return new Promise((resolve, reject) => {
     //THIS MAY HAVE TO BE A JOINED TABLE
@@ -154,28 +154,23 @@ const getProductById = (productID) => {
       .then(allData => {
         let product = allData[0]
         let features = allData[1]
+        let formattedData = {
+          id: product[0].ID,
+          name: product[0].Name,
+          slogan: product[0].Slogan,
+          description: product[0].Prod_Description,
+          category: product[0].Category,
+          default_price: product[0].Default_Price,
+          features: []
+        }
 
-        console.log('format product: ', product);
-        console.log('format features: ', features);
-
-        let formattedData = 'TODO:';
-        //combine  and format returned data
-        // formattedData = {
-        //   id: TODO:,
-        //   name: TODO:,
-        //   slogan: TODO:,
-        //   description: TODO:,
-        //   category: TODO:,
-        //   default_price: TODO:,
-        //   features: []
-        // }
-        // //iterate through features
-        // //for each feature
-        // let feature = {
-        //   feature: TODO:,
-        //   value: TODO:
-        // }
-        // done with iteration
+        features.forEach(featureRowPacket => {
+          let feature = {
+            feature: featureRowPacket.Feature,
+            value: featureRowPacket.Value
+          }
+          formattedData.features.push(feature)
+        })
         resolve(formattedData);
      })
      .catch(error=> {
