@@ -1,5 +1,6 @@
-const db = require('../db/db.js')
 const q = require ('./queries.js')
+const buf = require ('buffer');
+
 
 const getAllProducts = (params) => {
   return new Promise ((resolve, reject) => {
@@ -140,7 +141,7 @@ const getProductStyles = (productID) => {
         let newResult = new StyleResultTemplate(s[i].ID, s[i].Name, s[i].Original_Price, s[i].Sale_Price, s[i].Default_Style, photos[`${s[i].ID}`], SKUs[`${s[i].ID}`]);
         formattedData.results.push(newResult);
       }
-      console.log(formattedData)
+
 
       resolve(formattedData);
     })
@@ -167,9 +168,25 @@ const getRelatedProducts = (productID) => {
   })
 }
 
+
+const getStylesExperiment = (productID) => {
+  return new Promise ((resolve, reject) => {
+    q.queryJoinStylesSKUsPhotos(productID)
+    .then(result=> {
+      resolve(result)
+    })
+    .catch(error => {
+      error = new Error(error)
+      console.log(error)
+      reject(error)
+    })
+  })
+}
+
 module.exports = {
   getAllProducts: getAllProducts,
   getProductById: getProductById,
   getProductStyles: getProductStyles,
-  getRelatedProducts: getRelatedProducts
+  getRelatedProducts: getRelatedProducts,
+  getStylesExperiment: getStylesExperiment
 }

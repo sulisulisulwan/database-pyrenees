@@ -1,27 +1,8 @@
 
-const formatPhotosQueryValues = (formattedLine) => {
-  let tableValues = {
-    id: Object.keys(field)[0],
-     thumbnail_url: field[id].thumbnail_url,
-     url: field[id].url,
-     styleId: field[id].styleId
-  }
-  return fillQueryValuesArray(tableValues)
-}
-
-const formatFeaturesQueryValues = (formattedLine) => {
-  let tableValues = {
-    id: Object.keys(formattedLine)[0],
-    feature: formattedLine[id].feature,
-    value: formattedLine[id].value,
-    product_id: formattedLine[id].product_id
-  }
-  return fillQueryValuesArray(tableValues)
-}
-
 const formatProductQueryValues = (formattedLine) => {
+  let id = Number(Object.keys(field)[0]);
   let tableValues = {
-    id: Number(Object.keys(field)[0]),
+    id: id,
     name: formattedLine[id].name,
     slogan: formattedLine[id].slogan,
     description: formattedLine[id].description,
@@ -31,24 +12,50 @@ const formatProductQueryValues = (formattedLine) => {
   return fillQueryValuesArray(tableValues)
 }
 
-const formatSKUsQueryValues = (formattedLine) => {
-  let tableValues = {
-    id: Number(Object.keys(formattedLine)[0]),
-    quantity: formattedLine[id].quantity,
-    size: formattedLine[id].size,
-    styleId: formattedLine[id].styleId
-  }
-  return fillQueryValuesArray(tableValues)
-}
-
 const formatStylesQueryValues = (formattedLine) => {
+  let id = Object.keys(formattedLine)[0];
   let tableValues = {
-    id: Object.keys(formattedLine)[0],
+    id: id,
     name: formattedLine[id].name,
     original_price: formattedLine[id].original_price,
     sale_price: formattedLine[id].sale_price,
     default_style: formattedLine[id].default_style,
     product_id: formattedLine[id].productId
+  }
+  return fillQueryValuesArray(tableValues)
+}
+
+const formatFeaturesQueryValues = (formattedLine) => {
+  let id = Object.keys(formattedLine)[0];
+  let tableValues = {
+    id: id,
+    feature: formattedLine[id].feature,
+    value: formattedLine[id].value,
+    product_id: formattedLine[id].product_id
+  }
+  return fillQueryValuesArray(tableValues)
+}
+
+const formatPhotosQueryValues = (formattedLine) => {
+  let id = Object.keys(formattedLine)[0];
+  let tableValues = {
+    id: id,
+    thumbnail_url: formattedLine[id].thumbnail_url,
+    url: formattedLine[id].url,
+    styleId: formattedLine[id].styleId,
+    productId: null
+  }
+  return fillQueryValuesArray(tableValues)
+}
+
+const formatSKUsQueryValues = (formattedLine) => {
+  let id = Number(Object.keys(formattedLine)[0]);
+  let tableValues = {
+    id: id,
+    quantity: formattedLine[id].quantity,
+    size: formattedLine[id].size,
+    styleId: formattedLine[id].styleId,
+    productId: null
   }
   return fillQueryValuesArray(tableValues)
 }

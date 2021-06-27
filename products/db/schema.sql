@@ -19,19 +19,33 @@ USE products;
 -- );
 
 -- Table 'Product_Styles'
+-- DROP TABLE IF EXISTS Product_Styles;
+
+-- CREATE TABLE Product_Styles (
+--   ID INT NOT NULL AUTO_INCREMENT,
+--   Name VARCHAR (255),
+--   Original_Price VARCHAR (255),
+--   Sale_Price VARCHAR (255),
+--   Default_Style BIT (1),
+--   Product_ID INT,
+--   FOREIGN KEY (Product_ID) REFERENCES Products(ID),
+--   PRIMARY KEY (ID)
+-- );
 
 -- Table 'SKUs'
 
--- DROP TABLE IF EXISTS SKUs;
+DROP TABLE IF EXISTS SKUs;
 
--- CREATE TABLE SKUs (
---   ID INT NOT NULL AUTO_INCREMENT,
---   Quantity INTEGER NULL DEFAULT NULL,
---   Size VARCHAR (255),
---   Style_ID INT,
---   FOREIGN KEY (Style_ID) REFERENCES Product_Styles(ID),
---   PRIMARY KEY (ID)
--- );
+CREATE TABLE SKUs (
+  ID INT NOT NULL AUTO_INCREMENT,
+  Quantity INTEGER NULL DEFAULT NULL,
+  Size VARCHAR (255),
+  Style_ID INT,
+  Product_ID INT,
+  FOREIGN KEY (Style_ID) REFERENCES Product_Styles(ID),
+  FOREIGN KEY (Product_ID) REFERENCES Products(ID),
+  PRIMARY KEY (ID)
+);
 
 
 -- -- Table 'Photos'
@@ -43,34 +57,24 @@ USE products;
 --   Thumbnail_URL VARCHAR (255),
 --   URL VARCHAR (255),
 --   Style_ID INT,
---   FOREIGN KEY (Style_ID) REFERENCES Product_Styles(ID),
---   PRIMARY KEY (ID)
--- );
-
-
--- DROP TABLE IF EXISTS Product_Styles;
-
--- CREATE TABLE Product_Styles (
---   ID INT NOT NULL AUTO_INCREMENT,
---   Name VARCHAR (255),
---   Original_Price VARCHAR (255),
---   Sale_Price VARCHAR (255),
---   Default_Style BINARY (1),
 --   Product_ID INT,
+--   FOREIGN KEY (Style_ID) REFERENCES Product_Styles(ID),
 --   FOREIGN KEY (Product_ID) REFERENCES Products(ID),
 --   PRIMARY KEY (ID)
 -- );
 
 
+
+
 -- Table 'Related Products'
 --
-DROP TABLE IF EXISTS Related_Products;
+-- DROP TABLE IF EXISTS Related_Products;
 
-CREATE TABLE Related_Products (
-  ID INTEGER NOT NULL AUTO_INCREMENT,
-  Product_IDs VARCHAR (255),
-  PRIMARY KEY (ID)
-);
+-- CREATE TABLE Related_Products (
+--   ID INTEGER NOT NULL AUTO_INCREMENT,
+--   Product_IDs VARCHAR (255),
+--   PRIMARY KEY (ID)
+-- );
 
 -- Table 'Features'
 

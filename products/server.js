@@ -79,6 +79,19 @@ app.get('/products/:product_id/related', (req, res) => {
   })
 })
 
+app.get('/experiment/:product_id', (req, res) => {
+  let id = req.url.replace('/experiment/', '')
+  models.getStylesExperiment(id)
+  .then(result => {
+    res.status(200).json(result);
+  })
+  .catch(error => {
+    console.log(new Error(error));
+    res.sendStatus(500);
+  })
+})
+
+/////////////////////////////////////////////////////////////////
 
 const checkForError = (endpoint, val, res) => {
   let err422 = 'invalid query parameter'
