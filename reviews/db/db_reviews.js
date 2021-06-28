@@ -10,11 +10,11 @@ const pool = mysql.createPool({
 });
 
 module.exports.getNReviews = (id, n, sort) => {
-  return pool.query(`SELECT * FROM reviews where product_id=${id} ORDER BY id DESC LIMIT ${n}`);
+  return pool.query(`SELECT * FROM reviews where product_id=${id} AND reported=1 ORDER BY ${sort} DESC LIMIT ${n}`);
 }
 
 module.exports.getAllReviews = (id, n, sort) => {
-  return pool.query(`SELECT rating, recommend FROM reviews where product_id=${id} ORDER BY id DESC`);
+  return pool.query(`SELECT rating, recommend FROM reviews where product_id=${id} AND reported=1 ORDER BY id DESC`);
 }
 
 module.exports.getPhotos = (id) => {
