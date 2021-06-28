@@ -2,10 +2,15 @@ const express = require('express')
 const models = require('./models/models.js');
 const port = 3000
 const app = express();
+
+
 app.use(express.json())
 app.listen(port, () => {
   console.log(`listening on port ${port}`);
 })
+
+
+
 
 let cache = {
   products: {},
@@ -14,12 +19,11 @@ let cache = {
   related: {},
 };
 /**********************************
- *
  *             ROUTES
- *
  *********************************/
 
 app.get('/products', (req, res) => {
+  res.send(200).json('weee!')
   let pageAndCount = {
     page: '1',
     count: '5'
@@ -52,6 +56,7 @@ app.get('/products', (req, res) => {
 
 
 app.get('/products/:product_id', (req, res) => {
+
   let id = req.url.replace('/products/', '')
   if (cache[id]) {
   checkForError('productId', id, res)
