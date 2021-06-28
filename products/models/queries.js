@@ -41,18 +41,18 @@ let queryFeatures = (productID) => {
   })
 }
 
-let querySKUs = (styleID) => {
+let querySKUs = (productID) => {
   return new Promise((resolve, reject) => {
-    let q = `SELECT * FROM SKUs WHERE Style_ID = ${styleID};`
+    let q = `SELECT * FROM SKUs WHERE Product_ID = ${productID};`
     db.query(q, (err, result)=> {
       err ? reject(new Error(err)) : resolve(result);
     })
   })
 }
 
-let queryPhotos = (styleID) => {
+let queryPhotos = (productID) => {
   return new Promise((resolve, reject) => {
-    let q = `SELECT * FROM Photos WHERE Style_ID = ${styleID};`
+    let q = `SELECT * FROM Photos WHERE Product_ID = ${productID};`
     db.query(q, (err, result)=> {
       err ? reject(new Error(err)) : resolve(result);
     })
@@ -68,19 +68,17 @@ let queryRelatedProducts = (productID) => {
   })
 }
 
-let queryJoinStylesSKUsPhotos = (productID) => {
+let queryStylesSKUsPhotos = (productID) => {
   return new Promise ((resolve, reject) => {
-    let q = `SELECT * FROM Product_Styles WHERE Product_ID = ${productID}`
-      // INNER JOIN
-      // SKUs
-      // ON Product_Styles.Style_ID = SKUs.Style_ID
-      // INNER JOIN
-      // Photos
-      // ON Product_Styles.Style_ID = Photos.Style_ID WHERE Product_ID = ${productID}`
-    db.query(q, (err, result) => {
-      err ? reject(new Error(err)) : resolve(result);
-    })
+    return Promise.all([queryProductStyles(productID), queryPhotos(productID), querySKUs(productID)])
+      .then(results => {
+        resolve(results);
+      })
+      .catch(error=> {
+        reject(new Error(error))
+      })
   })
+
 }
 
 module.exports = {
@@ -91,5 +89,5 @@ module.exports = {
   querySKUs: querySKUs,
   queryPhotos: queryPhotos,
   queryRelatedProducts: queryRelatedProducts,
-  queryJoinStylesSKUsPhotos: queryJoinStylesSKUsPhotos
+  queryStylesSKUsPhotos: queryStylesSKUsPhotos
 }

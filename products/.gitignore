@@ -6,3 +6,5 @@ NPM
 node_modules/
 
 db/etl/recycleBin
+
+JOURNAL.md

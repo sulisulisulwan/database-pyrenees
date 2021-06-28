@@ -19,18 +19,18 @@ USE products;
 -- );
 
 -- Table 'Product_Styles'
--- DROP TABLE IF EXISTS Product_Styles;
+DROP TABLE IF EXISTS Product_Styles;
 
--- CREATE TABLE Product_Styles (
---   ID INT NOT NULL AUTO_INCREMENT,
---   Name VARCHAR (255),
---   Original_Price VARCHAR (255),
---   Sale_Price VARCHAR (255),
---   Default_Style BIT (1),
---   Product_ID INT,
---   FOREIGN KEY (Product_ID) REFERENCES Products(ID),
---   PRIMARY KEY (ID)
--- );
+CREATE TABLE Product_Styles (
+  ID INT NOT NULL AUTO_INCREMENT,
+  Name VARCHAR (255),
+  Original_Price VARCHAR (255),
+  Sale_Price VARCHAR (255),
+  Default_Style TINYINT (1),
+  Product_ID INT,
+  FOREIGN KEY (Product_ID) REFERENCES Products(ID),
+  PRIMARY KEY (ID)
+);
 
 -- Table 'SKUs'
 
@@ -50,18 +50,18 @@ CREATE TABLE SKUs (
 
 -- -- Table 'Photos'
 
--- DROP TABLE IF EXISTS Photos;
+DROP TABLE IF EXISTS Photos;
 
--- CREATE TABLE Photos (
---   ID INTEGER NOT NULL AUTO_INCREMENT,
---   Thumbnail_URL VARCHAR (255),
---   URL VARCHAR (255),
---   Style_ID INT,
---   Product_ID INT,
---   FOREIGN KEY (Style_ID) REFERENCES Product_Styles(ID),
---   FOREIGN KEY (Product_ID) REFERENCES Products(ID),
---   PRIMARY KEY (ID)
--- );
+CREATE TABLE Photos (
+  ID INTEGER NOT NULL AUTO_INCREMENT,
+  Thumbnail_URL VARCHAR (255),
+  URL VARCHAR (255),
+  Style_ID INT,
+  Product_ID INT,
+  FOREIGN KEY (Style_ID) REFERENCES Product_Styles(ID),
+  FOREIGN KEY (Product_ID) REFERENCES Products(ID),
+  PRIMARY KEY (ID)
+);
 
 
 

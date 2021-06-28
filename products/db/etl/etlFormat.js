@@ -20,7 +20,7 @@ const productsStylesFeaturesPhotosSKUS = (line, keys) => {
       || key === 'value'
       ) ? field[i].replace('"', '').replace('"', '')
       : (key === 'id' || key === 'style_id' || key === 'quantity' || 'productId') ? Number(field[i])
-      : key === 'default?' ? ((field[i] === 'true') ? true : false)
+      : key === 'default?' ? ((field[i] === 'true') ? 1 : 0)
       : field[i];
     tableEntry[id][key] = value;
   });

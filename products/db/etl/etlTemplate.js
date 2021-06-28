@@ -67,6 +67,8 @@ let intermediaryQuery = (needIntermediaryQuery, values) => {
       db.query(`SELECT Product_ID FROM Product_Styles WHERE ID = ${values[values.length - 2]}`, (error, result) => {
         error ? reject(new Error(error)) : resolve(result[0].Product_ID);
       });
+    } else {
+      resolve(values);
     }
   });
 }
