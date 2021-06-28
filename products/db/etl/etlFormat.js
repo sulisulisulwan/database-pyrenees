@@ -1,13 +1,6 @@
-let formatForDatabase = (line, preexistingKeys, isFirstLine) => {
-  let keys = []
+const productsStylesFeaturesPhotosSKUS = (line, keys) => {
   let tableEntry = {}
   let field = line.split(',')
-
-  if (isFirstLine === true) {
-    field.forEach(key => keys.push(key))
-    return keys;
-  }
-  keys = preexistingKeys
   let id = field[0]
   tableEntry[id] = {};
   let value;
@@ -27,13 +20,35 @@ let formatForDatabase = (line, preexistingKeys, isFirstLine) => {
       || key === 'value'
       ) ? field[i].replace('"', '').replace('"', '')
       : (key === 'id' || key === 'style_id' || key === 'quantity' || 'productId') ? Number(field[i])
-      : key === 'default?' ? ((field[i] === 'true') ? true : false)
+      : key === 'default?' ? ((field[i] === 'true') ? 1 : 0)
       : field[i];
     tableEntry[id][key] = value;
   });
   return tableEntry;
 }
 
+
+const relatedProducts = (line, relatedProducts, currentProductID) => {
+  let [idColumn, relatedProduct] = line.split(',')
+  let proceed = false;
+  let field = null;
+  if (currentProductID === undefined) {
+    currentProductID = idColumn;
+  } else if (currentProductID === idColumn) {
+    relatedProducts.push(Number(relatedProduct))
+  } else {
+    let field = {
+      id: currentProductID,
+      relatedProducts: JSON.stringify(relatedProducts)
+    }
+    relatedProducts = [];
+    proceed = true
+  }
+  return [relatedProducts, field, proceed, currentProductID]
+}
+
+
 module.exports = {
-  formatForDatabase: formatForDatabase
+  relatedProducts: relatedProducts,
+  productsStylesFeaturesPhotosSKUS: productsStylesFeaturesPhotosSKUS,
 }

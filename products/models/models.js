@@ -1,10 +1,12 @@
-const db = require('../db/db.js')
 const q = require ('./queries.js')
+const buf = require ('buffer');
+
 
 const getAllProducts = (params) => {
   return new Promise ((resolve, reject) => {
     q.queryProducts(params)
     .then(allProducts => {
+
       let formattedData = []
       let dataPacketKeys = Object.keys(allProducts);
       dataPacketKeys.forEach(key => {
@@ -17,6 +19,8 @@ const getAllProducts = (params) => {
         product.default_price = allProducts[key].Default_Price;
         formattedData.push(product)
       });
+
+
       resolve(formattedData);
     })
     .catch(error => {
@@ -63,37 +67,27 @@ const getProductById = (productID) => {
 }
 
 const getProductStyles = (productID) => {
-  let stylesData;
-  let skusData;
-  let skusPromises = []
-  let photosPromises = [];
-  let styleID;
   return new Promise((resolve, reject) => {
-    q.queryProductStyles(productID)
+    q.queryStylesSKUsPhotos(productID)
     .then(results => {
-      stylesData = results;
-      for (let i = 0; i < stylesData.length; i++) {
-        styleID = stylesData[i].ID;
-        skusPromises.push(q.querySKUs(styleID));
-      }
-      return Promise.all(skusPromises)
-    })
-    .then(results => {
-      skusData = results;
-      for (let i = 0; i < stylesData.length; i++) {
-        styleID = stylesData[i].ID;
-        photosPromises.push(q.queryPhotos(styleID));
-      }
-      return Promise.all(photosPromises)
-    })
-    .then(photosData => {
-
+      let [styles, photos, skus] = results;
+      let photosHash = {}
+      let skusHash = {}
+      console.log()
+      photos.forEach(photo => photosHash[photo.Style_ID] === undefined ? photosHash[photo.Style_ID] = [{thumbnail_url: photo.Thumbnail_URL, url: photo.URL}] : photosHash[photo.Style_ID].push({thumbnail_url: photo.Thumbnail_URL, url: photo.URL}))
+      skus.forEach(sku => {
+        if (skusHash[sku.Style_ID] === undefined) {
+          skusHash[sku.Style_ID] = {};
+          skusHash[sku.Style_ID][sku.ID] = {quantity: sku.Quantity, size: sku.Size}
+        } else {
+          skusHash[sku.Style_ID][sku.ID] = {quantity: sku.Quantity, size: sku.Size}
+        }
+      })
       let formattedData = {
         product_id: `${productID}`,
         results: []
       }
-
-      class StyleResultTemplate {
+      class Style {
         constructor (styleId, name, originalPrice, salePrice, defaultStyle, photos, skus) {
           this.style_id = styleId,
           this.name = name,
@@ -104,51 +98,15 @@ const getProductStyles = (productID) => {
           this.skus = skus
         }
       }
-
-      let SKUs = {}
-      for (let i = 0; i < skusData.length; i++) {
-        for (let j = 0; j < skusData[i].length; j++) {
-          let sku = skusData[i][j]
-          if (SKUs[sku.Style_ID] === undefined) {
-            SKUs[sku.Style_ID] = {};
-          }
-          SKUs[sku.Style_ID][sku.ID] = {
-            quantity: sku.Quantity,
-            size: sku.Size
-          }
-
-        }
-      }
-
-
-      let photos = {}
-      for (let i = 0; i < photosData.length; i++) {
-        for (let j = 0; j < photosData[i].length; j++) {
-          let photo = photosData[i][j];
-          if (photos[photo.Style_ID] === undefined) {
-            photos[photo.Style_ID] = [];
-          }
-          photos[photo.Style_ID].push({
-            thumbnail_url: photo.Thumbnail_URL,
-            url: photo.URL
-          })
-        }
-      }
-
-      let s = stylesData;
-      for (let i = 0; i < s.length; i++) {
-        let newResult = new StyleResultTemplate(s[i].ID, s[i].Name, s[i].Original_Price, s[i].Sale_Price, s[i].Default_Style, photos[`${s[i].ID}`], SKUs[`${s[i].ID}`]);
-        formattedData.results.push(newResult);
-      }
-      console.log(formattedData)
-
+      styles.forEach((style, i)=> {
+        let isDefault = styles[i].Default_Style === 1 ? true : false
+        formattedData.results.push(new Style (styles[i].ID, styles[i].Name, styles[i].Original_Price, styles[i].Sale_Price, isDefault, photosHash[`${styles[i].ID}`], skusHash[`${styles[i].ID}`]))
+      })
       resolve(formattedData);
     })
-    .catch(error => {
-      error = new Error(error)
-      console.log(error)
-      reject(error)
-    })
+    .catch(error=>{
+      reject(new Error(error));
+    });
   })
 }
 
@@ -171,5 +129,5 @@ module.exports = {
   getAllProducts: getAllProducts,
   getProductById: getProductById,
   getProductStyles: getProductStyles,
-  getRelatedProducts: getRelatedProducts
+  getRelatedProducts: getRelatedProducts,
 }
