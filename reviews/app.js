@@ -11,6 +11,10 @@ app.use(express.urlencoded({extended:false}));
 //get reviews
 app.get('/reviews', async (req, res) => {
   const params = req.query;
+  let sort = 'id';
+  //determine sort
+  if (params.sort === 'helpful') {sort = 'helpfullness';} else if (params.sort === 'relevant') {sort = 'recommend';}
+
   //get photo data..
   const photos = await db.getPhotos(Number(params.product_id));
   //parse through it and associate it by key value pairs
@@ -30,7 +34,7 @@ app.get('/reviews', async (req, res) => {
     count: params.count,
   };
   //get reviews!!
-  const reviews = await db.getNReviews(Number(params.product_id), Number(params.count), params.sort);
+  const reviews = await db.getNReviews(Number(params.product_id), Number(params.count), sort);
   const resultsArray = reviews[0].map((row) => {
     return {
       review_id: row.id,
@@ -52,96 +56,112 @@ app.get('/reviews', async (req, res) => {
 
 //get meta reviews
 app.get('/reviews/meta', async (req, res) => {
-  const params = req.query;
-  data = {
-    product_id: params.product_id,
-    ratings: {},
-    recommended: {0:0, 1:0}
-  };
+  try {
+    const params = req.query;
+    data = {
+      product_id: params.product_id,
+      ratings: {},
+      recommended: {0:0, 1:0}
+    };
 
-  const characteristics = await db.getCharacteristics(params.product_id);
-  characteristics[0].forEach((row) => {
-    if (data[row.name] === undefined) {
-      data[row.name] = {
-        id: row.id,
-        value: row.value
-      };
-    } else {
-      let current = data[row.name].value;
-      data[row.name].value = (current + row.value) / 2;
-    }
-  })
+    const characteristics = await db.getCharacteristics(params.product_id);
+    characteristics[0].forEach((row) => {
+      if (data[row.name] === undefined) {
+        data[row.name] = {
+          id: row.id,
+          value: row.value
+        };
+      } else {
+        let current = data[row.name].value;
+        data[row.name].value = (current + row.value) / 2;
+      }
+    })
 
-  const reviews = await db.getAllReviews(Number(params.product_id));
-  reviews[0].forEach((row) => {
-    if (row.recommend === 1) {
-      data.recommended['1'] += 1;
-    } else {
-      data.recommended['0'] += 1;
-    }
+    const reviews = await db.getAllReviews(Number(params.product_id));
+    reviews[0].forEach((row) => {
+      if (row.recommend === 1) {
+        data.recommended['1'] += 1;
+      } else {
+        data.recommended['0'] += 1;
+      }
 
-    if (!(data.ratings[row.rating])) {
-      data.ratings[row.rating] = 1;
-    } else {
-      data.ratings[row.rating] += 1;
-    }
-  })
-  res.statusCode = 200;
-  res.send(data);
+      if (!(data.ratings[row.rating])) {
+        data.ratings[row.rating] = 1;
+      } else {
+        data.ratings[row.rating] += 1;
+      }
+    })
+    res.statusCode = 200;
+    res.send(data);
+  } catch(err) {
+    res.statusCode = 404;
+    res.send(err);
+  }
 });
 
 //write to database
 app.post('/reviews', async (req, res) => {
-  const body = req.body;
-  const array = [
-    Number(body.product_id),
-    Number(body.rating),
-    helper.generateDate(),
-    body.summary,
-    body.body,
-    ((body.recommend === 'true') ? 1 : 0),
-    1,
-    body.name,
-    body.email,
-    null,
-    0
-  ]
-  await db.addAReview(array);
-  const lastInsertIdRow = await db.lastInsertId();
-  const lastInsertId = lastInsertIdRow[0][0].s;
+  try {
+    const body = req.body;
+    const array = [
+      Number(body.product_id),
+      Number(body.rating),
+      helper.generateDate(),
+      body.summary,
+      body.body,
+      ((body.recommend === 'true') ? 1 : 0),
+      1,
+      body.name,
+      body.email,
+      null,
+      0
+    ]
+    await db.addAReview(array);
+    const lastInsertIdRow = await db.lastInsertId();
+    const lastInsertId = lastInsertIdRow[0][0].s;
+    //add photos
+    body.photos.forEach(async (photo) => {
+      await db.addAPhoto([lastInsertId, photo]);
+    })
+    //add characteristics
+    const characteristicIds = Object.keys(body.characteristics);
+    const characteristicValues = Object.values(body.characteristics);
 
-  //add photos
-  body.photos.forEach(async (photo) => {
-    await db.addAPhoto([lastInsertId, photo]);
-  })
-
-  //add characteristics
-  const characteristicIds = Object.keys(body.characteristics);
-  const characteristicValues = Object.values(body.characteristics);
-
-  for (let i = 0; i < characteristicIds.length; i++) {
-    await db.addACharacteristicsReviews([Number(characteristicIds[i]), Number(lastInsertId), Number(characteristicValues[i])]);
+    for (let i = 0; i < characteristicIds.length; i++) {
+      await db.addACharacteristicsReviews([Number(characteristicIds[i]), Number(lastInsertId), Number(characteristicValues[i])]);
+    }
+    res.statusCode = 200;
+    res.send('review added!!');
+  } catch(err) {
+    res.statusCode = 404;
+    res.send(err);
   }
-  res.statusCode = 200;
-  res.send('review added!!');
 });
 
 app.put('/reviews/:review_id/report', async (req, res) => {
-  const id = req.params.review_id;
-  // console.log(id)
-  db.reportAReview(id);
-  res.statusCode = 200;
-  res.send('reported review!');
+  try {
+    const id = req.params.review_id;
+    db.reportAReview(id);
+    res.statusCode = 200;
+    res.send('reported review!');
+  } catch(err) {
+    res.statusCode = 404;
+    res.send(err);
+  }
 });
 
 app.put('/reviews/:review_id/helpful', async (req, res) => {
-  const id = req.params.review_id;
-  // console.log(id)
-  db.incrementHelpfulness(id);
-  res.statusCode = 200;
-  res.send('incremented!');
+  try {
+    const id = req.params.review_id;
+    db.incrementHelpfulness(id);
+    res.statusCode = 200;
+    res.send('incremented!');
+  } catch(err) {
+    res.statusCode = 404;
+    res.send(err);
+  }
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`app listening at http://localhost:${port}`)
 });
