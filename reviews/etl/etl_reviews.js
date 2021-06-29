@@ -4,8 +4,6 @@ const db = require('./db/db.js');
 
 var reviews = __dirname + '/../../../DATA/reviews.csv';
 
-var results = [];
-
 const etlReview = () => {
   const readable = fs.createReadStream(reviews);
   readable
