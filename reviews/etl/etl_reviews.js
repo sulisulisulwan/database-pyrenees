@@ -1,6 +1,6 @@
 const fs = require('fs');
 const csv = require('csv-parser');
-const db = require('../db/db_reviews.js');
+const db = require('./db/db.js');
 
 var reviews = __dirname + '/../../../DATA/reviews.csv';
 
@@ -10,7 +10,7 @@ const etlReview = () => {
   const readable = fs.createReadStream(reviews);
   readable
   .pipe(csv({}))
-  .on('data', (data) => {
+  .on('data', async (data) => {
     //format date
     let temp = Date(data.date);
     let date = new Date(temp);
@@ -37,15 +37,11 @@ const etlReview = () => {
       Number(data.helpfulness)
     ];
     //load it into the database!!
-    db.insertIntoReviews(transformedData);
-    // results.push(transformedData);
-    // console.log(results.length);
-    // // this.pause();
+    await db.insertIntoReviews(transformedData);
   })
   .on('data', () => {
     readable.pause();
     setTimeout(() => {
-      // console.log('Now data starts flowing again.');
       readable.resume();
     }, 20000);
   })
@@ -54,4 +50,4 @@ const etlReview = () => {
   });
 }
 
-module.exports.etlReview = etlReview;
+etlReview();
