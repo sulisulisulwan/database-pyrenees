@@ -23,7 +23,6 @@ let cache = {
  *********************************/
 
 app.get('/products', (req, res) => {
-  res.send(200).json('weee!')
   let pageAndCount = {
     page: '1',
     count: '5'
