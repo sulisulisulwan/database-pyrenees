@@ -1,6 +1,6 @@
 const fs = require('fs');
 const csv = require('csv-parser');
-const db = require('../db/db_characteristics_reviews.js');
+const db = require('./db/db.js');
 
 var characteristicReviews = __dirname + '/../../../DATA/characteristic_reviews-19.csv';
 
@@ -8,11 +8,9 @@ const etlCharacteristicReviews = () => {
   const readable = fs.createReadStream(characteristicReviews);
   readable
   .pipe(csv({}))
-  .on('data', (data) => {
-    //put it in array
+  .on('data', async (data) => {
     let transformedData = [Number(data.id), Number(data.characteristic_id), Number(data.review_id), Number(data.value)];
-    // console.log(transformedData);
-    db.insertIntoCharacteristicsReviews(transformedData);
+    await db.insertIntoCharacteristicsReviews(transformedData);
   })
   .on('data', () => {
     readable.pause();
@@ -26,4 +24,4 @@ const etlCharacteristicReviews = () => {
   });
 }
 
-module.exports.etlCharacteristicReviews = etlCharacteristicReviews;
+etlCharacteristicReviews();
