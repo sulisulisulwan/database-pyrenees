@@ -11,13 +11,6 @@ app.listen(port, () => {
 
 
 
-
-let cache = {
-  products: {},
-  productID: {},
-  styles: {},
-  related: {},
-};
 /**********************************
  *             ROUTES
  *********************************/
@@ -36,11 +29,7 @@ app.get('/products', (req, res) => {
     })
   }
   pageAndCount.count = (Number(pageAndCount.count) > 10 || pageAndCount.count === '')? '10' : pageAndCount.count;
-  let cacheKey = `${pageAndCount.page}:${pageAndCount.count}`
   checkForError('products', pageAndCount.page, res)
-  if (cache.products[cacheKey]) {
-    res.status(200).json(cache.products[cacheKey])
-  } else {
     models.getAllProducts(pageAndCount)
     .then(result => {
       cache.products[cacheKey] = result
@@ -57,10 +46,6 @@ app.get('/products', (req, res) => {
 app.get('/products/:product_id', (req, res) => {
 
   let id = req.url.replace('/products/', '')
-  if (cache[id]) {
-  checkForError('productId', id, res)
-    res.status(200).json(cache[id]);
-  } else {
     models.getProductById(id)
     .then(result => {
       cache[id] = result
@@ -76,10 +61,6 @@ app.get('/products/:product_id', (req, res) => {
 
 app.get('/products/:product_id/styles', (req, res) => {
   let id = req.url.replace('/products/', '').replace('/styles', '');
-  checkForError('styles', id, res)
-  if (cache.styles[id]) {
-    res.status(200).json(cache.styles[id])
-  } else {
     models.getProductStyles(id)
     .then(results => {
       cache.styles[id] = results
@@ -96,9 +77,6 @@ app.get('/products/:product_id/styles', (req, res) => {
 app.get('/products/:product_id/related', (req, res) => {
   let id = req.url.replace('/products/', '').replace('/related', '');
   checkForError('related', id, res);
-  if (cache.related[id]) {
-    res.status(200).json(cache.related[id]);
-  } else {
     models.getRelatedProducts(id)
     .then(result => {
       cache.related[id] = result;
