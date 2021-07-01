@@ -3,7 +3,7 @@ const models = require('./models/models.js');
 const port = 3000
 const app = express();
 
-
+app.use(express.static('public'));
 
 
 //BELOW FOR TESTING PURPOSES
