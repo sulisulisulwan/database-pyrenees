@@ -51,11 +51,10 @@ app.get('/products', (req, res) => {
   checkForError('products', pageAndCount.page, res)
     models.getAllProducts(pageAndCount)
     .then(result => {
-      cache.products[cacheKey] = result
       res.status(200).json(result)
     })
     .catch(error => {
-      console.log('also here')
+      console.log(new Error(error))
       res.sendStatus(500)
     })
 })
@@ -66,7 +65,6 @@ app.get('/products/:product_id', (req, res) => {
   let id = req.url.replace('/products/', '')
     models.getProductById(id)
     .then(result => {
-      cache[id] = result
       res.status(200).json(result)
     })
     .catch(error => {
@@ -82,7 +80,6 @@ app.get('/products/:product_id/styles', (req, res) => {
     let id = setID(1958100) //for testing purposes
     models.getProductStyles(id)
     .then(results => {
-      cache.styles[id] = results
       res.status(200).json(results);
     })
     .catch(error => {
@@ -97,7 +94,6 @@ app.get('/products/:product_id/related', (req, res) => {
   checkForError('related', id, res);
     models.getRelatedProducts(id)
     .then(result => {
-      cache.related[id] = result;
       res.status(200).json(result);
     })
     .catch(error => {
