@@ -58,7 +58,6 @@ app.get('/products', (req, res) => {
       console.log('also here')
       res.sendStatus(500)
     })
-  }
 })
 
 
@@ -74,7 +73,6 @@ app.get('/products/:product_id', (req, res) => {
       console.log(new Error(error))
       res.sendStatus(500);
     })
-  }
 })
 
 
@@ -91,7 +89,6 @@ app.get('/products/:product_id/styles', (req, res) => {
       console.log(new Error(error))
       res.sendStatus(500)
     })
-  }
 })
 
 
@@ -107,7 +104,6 @@ app.get('/products/:product_id/related', (req, res) => {
       console.log(new Error(error))
       res.sendStatus(500)
     })
-  }
 })
 
 
