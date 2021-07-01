@@ -9,11 +9,11 @@ const app = express();
 //BELOW FOR TESTING PURPOSES
 let quarterRange = 1
 const updateQuarterRange = () => {
-  currentQuarterRange = currentQuarterRange === 4 ? 1 : currentQuarterRange++
+  quarterRange = quarterRange === 4 ? 1 : quarterRange++
 }
 const setID = (totalIDs) => {
   let quarter = Math.floor(totalIDs / 4)
-  let id = Math.floor(Math.random()* quarter + 1) + ((currentQuarterRange - 1) * quarter)
+  let id = Math.floor(Math.random()* quarter + 1) + ((quarterRange - 1) * quarter)
   updateQuarterRange()
   return id;
 }
